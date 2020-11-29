@@ -1,74 +1,138 @@
-require('dotenv').config();
-import webpack from 'webpack';
-const merge = require('deepmerge');
+import path from 'path';
+import {
+  css,
+  pwa,
+  head,
+  build,
+  modules,
+  plugins,
+  render,
+  sitemap,
+  buildModules,
+  publicRuntimeConfig,
+  privateRuntimeConfig
+} from './config';
 
-const baseConfig = require('./nuxiopress/base.config');
-const nuxiopressConfig = require('./app/nuxiopress.config');
+export default {
+  // mode: 'universal',
 
-const nuxt = merge(baseConfig, nuxiopressConfig, {
-  arrayMerge: (target, source, options) => {
-    const destination = target.slice();
+  /*
+  ** Headers of the page
+  */
+  head,
 
-    source.forEach((item, index) => {
-      if (typeof destination[index] === 'undefined') {
-        destination[index] = options.cloneUnlessOtherwiseSpecified(
-          item,
-          options
-        );
-      } else if (options.isMergeableObject(item)) {
-        destination[index] = merge(target[index], item, options);
-      } else if (target.indexOf(item) === -1) {
-        destination.push(item);
-      }
-    });
-    return destination;
-  }
-});
+  /*
+  ** PWA Configuration
+  */
+  pwa,
+  /*
+  ** Global CSS
+  */
+  css,
 
-/*
- ** Build configuration
- */
-nuxt.build = {
-  crossorigin: 'anonymous',
-  publicPath: '/_nuxiopress/',
-  extractCSS: true,
-  babel: {
-    plugins: [
-      ['@babel/plugin-proposal-decorators', { legacy: true }],
-      ['@babel/plugin-proposal-class-properties', { loose: true }]
-    ]
+  /*
+  ** Nuxt Style Resources
+  */
+  styleResources: {
+    scss: ['~assets/sass/_variables.scss', '~assets/sass/_mixins.scss']
   },
-  plugins: [
-    new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery',
-      _: 'lodash',
-      Popper: 'popper.js'
-    })
-  ],
-  transpile: ['vee-validate'],
-  // vendor: ['jquery', 'bootstrap', 'popper.js', 'daemonite-material'],
-  extend(config, ctx) {
-    if (ctx.isDev) {
-      config.devtool = ctx.isClient ? 'eval-source-map' : 'inline-source-map';
-    }
-    // Run ESLint on save
-    if (ctx.isDev && ctx.isClient) {
-      config.module.rules.push({
-        enforce: 'pre',
-        test: /\.(js|vue)$/,
-        loader: 'eslint-loader',
-        exclude: /(node_modules)/
-      });
-    }
-    config.node = {
-      fs: 'empty'
-    };
+
+  /*
+  ** Plugins to load before mounting the App
+  */
+  plugins,
+
+  /*
+  ** Auto import components
+  */
+  components: true,
+  /*
+  ** Nuxt.js dev-modules
+  */
+  buildModules,
+
+  /*
+  ** Nuxt.js modules
+  */
+  modules,
+  /*
+  ** Private Runtime configuration
+  */
+  privateRuntimeConfig,
+  /*
+  ** Public Runtime configuration
+  */
+  publicRuntimeConfig,
+  /*
+  ** Axios module configuration
+  */
+  axios: {},
+  /*
+  ** Content module configuration
+  */
+  content: {},
+  /*
+  ** Nuxt target
+  */
+  target: 'server',
+  /*
+  ** The ssr Property
+  */
+  ssr: true,
+  /*
+  ** Build configuration
+  */
+  build,
+  /*
+  ** Nuxt Source directory
+  */
+  srcDir: 'src/',
+  /*
+  ** Build directory
+  */
+  buildDir: '.nuxiopress/',
+  /*
+  ** The globalName Property
+  */
+  globalName: 'nuxiopress',
+  /*
+  ** Generated Dist directory
+  */
+  generate: {
+    dir: 'nuxiopress-dist/'
   },
-  filenames: {
-    chunk: ({ isDev }) => (isDev ? '[name].js' : '[id].[chunkhash].js')
+  /*
+  ** The cli Property
+  */
+  cli: {
+    badgeMessages: ['App is Running using "NUXIOPRESS!"']
+  },
+  /*
+  ** Sitemap Config
+  */
+  sitemap,
+  /*
+  ** Render Config
+  */
+  render,
+  /*
+  ** colorMode Config
+  */
+  colorMode: {
+    preference: 'system', // default value of $colorMode.preference
+    fallback: 'light', // fallback value if not system preference found
+    hid: 'nuxiopress-color-mode-script',
+    globalName: '__NUXIOPRESS_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    cookie: {
+      key: 'nuxiopress-mode'
+    }
+  },
+  /*
+    ** tailwindcss Config
+    */
+  tailwindcss: {
+    cssPath: '~/assets/css/tailwind.css',
+    configPath: 'tailwind.config.js'
   }
 };
-
-module.exports = nuxt;
